@@ -1,39 +1,82 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"net"
 	"os"
 	"bytes"
+	"github.com/codegangsta/cli"
 )
 
 func main() {
-	var login string
-	var password string
-	var ip string
-	var port string
-	flag.StringVar(&login, "login", "tv", "Login for your TV")
-	flag.StringVar(&password, "password", "teevee", "Password for your TV")
-	flag.StringVar(&ip, "ip", "10.0.1.220", "IP address of your TV")
-	flag.StringVar(&port, "port", "10002", "Port number of your TV")
-	flag.Parse()
+	app := cli.NewApp()
+	app.Name = "Aquos Remote"
+	app.Usage = "Control your Aquos TV like magic"
 
+	app.Flags = []cli.Flag {
+		cli.StringFlag{
+			Name: "login",
+			Value: "tv",
+			Usage: "login for your TV",
+		},
+		cli.StringFlag{
+			Name: "password",
+			Value: "teevee",
+			Usage: "password for your TV",
+		},
+		cli.StringFlag{
+			Name: "ip",
+			Value: "10.0.1.220",
+			Usage: "IP address of your TV",
+		},
+		cli.StringFlag{
+			Name: "port",
+			Value: "10002",
+			Usage: "port number of your TV",
+		},
+	}
+
+	app.Commands = []cli.Command{
+		{
+			Name: "power-on",
+			Usage: "turn the TV on",
+			Action: func(c *cli.Context) {
+				conn := login(c)
+				defer conn.Close()
+				conn.Write([]byte("POWR1   \r"))
+			},
+		},
+		{
+			Name: "power-off",
+			Usage: "turn the TV off",
+			Action: func(c *cli.Context) {
+				conn := login(c)
+				defer conn.Close()
+				conn.Write([]byte("POWR0   \r"))
+			},
+		},
+	}
+
+	app.Run(os.Args)
+}
+
+func login(c *cli.Context) (conn *net.TCPConn) {
+	ip, port := c.GlobalString("ip"), c.GlobalString("port")
 	tvAddr, err := net.ResolveTCPAddr("tcp", ip + ":" + port)
 	if err != nil {
-		fmt.Println("Could not resolve ", ip, "on", port)
+		println("Could not resolve", ip, "on", port)
 		os.Exit(1)
 	}
 
-	conn, err := net.DialTCP("tcp", nil, tvAddr)
+	conn, err = net.DialTCP("tcp", nil, tvAddr)
 	if err != nil {
-		fmt.Println("Could not connect to ", ip, "on", port)
+		println("Could not connect to", ip, "on", port)
 		os.Exit(1)
 	}
-	defer conn.Close()
 
 	conn.SetReadBuffer(1024)
 	conn.SetWriteBuffer(1024)
+
+	login, password := c.GlobalString("login"), c.GlobalString("password")
 
 	var recv []byte
 	conn.Read(recv)
@@ -41,12 +84,10 @@ func main() {
 	conn.Read(recv)
 	conn.Write([]byte(password + "\r"))
 	conn.Read(recv)
-	if bytes.Equal(recv, []byte("")) {
-		fmt.Println("Logged in")
-	} else {
-		fmt.Println("Couldn't log in")
+	if !bytes.Equal(recv, []byte("")) {
+		println("Couldn't log in")
 		os.Exit(1)
 	}
 
-	conn.Write([]byte("POWR0   \r"))
+	return conn
 }
