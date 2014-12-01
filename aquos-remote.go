@@ -54,6 +54,15 @@ func main() {
 				conn.Write([]byte("POWR0   \r"))
 			},
 		},
+		{
+			Name: "input",
+			Usage: "select an input\n1 - HDMI 1\n2 - HDMI 2\n3 - HDMI 3\n4 - HDMI 4\n5 - Component\n6 - Video 1\n7 - Video 2",
+			Action: func(c *cli.Context) {
+				conn := login(c)
+				defer conn.Close()
+				conn.Write([]byte("IAVD" + c.Args()[0] + "   \r"))
+			},
+		},
 	}
 
 	app.Run(os.Args)
