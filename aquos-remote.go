@@ -1,10 +1,10 @@
 package main
 
 import (
-	"net"
-	"os"
 	"bytes"
 	"github.com/codegangsta/cli"
+	"net"
+	"os"
 )
 
 func main() {
@@ -12,24 +12,24 @@ func main() {
 	app.Name = "Aquos Remote"
 	app.Usage = "Control your Aquos TV like magic"
 
-	app.Flags = []cli.Flag {
+	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "login",
+			Name:  "login",
 			Value: "tv",
 			Usage: "login for your TV",
 		},
 		cli.StringFlag{
-			Name: "password",
+			Name:  "password",
 			Value: "teevee",
 			Usage: "password for your TV",
 		},
 		cli.StringFlag{
-			Name: "ip",
-			Value: "10.0.1.220",
+			Name:  "ip",
+			Value: "10.0.1.172",
 			Usage: "IP address of your TV",
 		},
 		cli.StringFlag{
-			Name: "port",
+			Name:  "port",
 			Value: "10002",
 			Usage: "port number of your TV",
 		},
@@ -37,7 +37,7 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name: "power-on",
+			Name:  "power-on",
 			Usage: "turn the TV on",
 			Action: func(c *cli.Context) {
 				conn := login(c)
@@ -46,7 +46,7 @@ func main() {
 			},
 		},
 		{
-			Name: "power-off",
+			Name:  "power-off",
 			Usage: "turn the TV off",
 			Action: func(c *cli.Context) {
 				conn := login(c)
@@ -55,7 +55,7 @@ func main() {
 			},
 		},
 		{
-			Name: "input",
+			Name:  "input",
 			Usage: "select an input\n1 - HDMI 1\n2 - HDMI 2\n3 - HDMI 3\n4 - HDMI 4\n5 - Component\n6 - Video 1\n7 - Video 2",
 			Action: func(c *cli.Context) {
 				conn := login(c)
@@ -79,7 +79,7 @@ func main() {
 
 func login(c *cli.Context) (conn *net.TCPConn) {
 	ip, port := c.GlobalString("ip"), c.GlobalString("port")
-	tvAddr, err := net.ResolveTCPAddr("tcp", ip + ":" + port)
+	tvAddr, err := net.ResolveTCPAddr("tcp", ip+":"+port)
 	if err != nil {
 		println("Could not resolve", ip, "on", port)
 		os.Exit(1)
