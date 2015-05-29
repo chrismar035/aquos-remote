@@ -63,6 +63,15 @@ func main() {
 				conn.Write([]byte("IAVD" + c.Args()[0] + "   \r"))
 			},
 		},
+		{
+			Name:  "volume",
+			Usage: "select a volume level (between 0 and 60)",
+			Action: func(c *cli.Context) {
+				conn := login(c)
+				defer conn.Close()
+				conn.Write([]byte("VOLM" + c.Args()[0] + "  \r"))
+			},
+		},
 	}
 
 	app.Run(os.Args)
