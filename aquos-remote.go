@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/codegangsta/cli"
 	"net"
 	"os"
@@ -69,7 +70,7 @@ func main() {
 			Action: func(c *cli.Context) {
 				conn := login(c)
 				defer conn.Close()
-				conn.Write([]byte("VOLM" + c.Args()[0] + "  \r"))
+				conn.Write([]byte(fmt.Sprintf("VOLM%-4s\r", c.Args()[0])))
 			},
 		},
 	}
